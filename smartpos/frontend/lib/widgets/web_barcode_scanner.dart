@@ -101,8 +101,22 @@ class _WebBarcodeScannerState extends State<WebBarcodeScanner> {
   void _submitBarcode() {
     final barcode = _barcodeController.text.trim();
     if (barcode.isNotEmpty) {
+      // Call callback BEFORE popping
       widget.onBarcodeDetected(barcode);
-      Navigator.pop(context);
+      // Small delay to ensure callback completes before navigation
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (mounted) {
+          Navigator.pop(context);
+        }
+      });
+    } else {
+      // Show error if barcode is empty
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter a barcode'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 

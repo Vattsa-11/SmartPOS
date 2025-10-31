@@ -419,9 +419,32 @@ class _BillingScreenState extends State<BillingScreen> {
                           return Card(
                             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                             child: ListTile(
+                              leading: Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).primaryColor.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: Theme.of(context).primaryColor,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    quantityDisplay,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12,
+                                      color: Theme.of(context).primaryColor,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ),
                               title: Text(item.product.name),
                               subtitle: Text(
-                                'Qty: $quantityDisplay x ₹${item.product.price.toStringAsFixed(2)} = ₹${item.totalPrice.toStringAsFixed(2)}',
+                                '₹${item.product.price.toStringAsFixed(2)} x $quantityDisplay = ₹${item.totalPrice.toStringAsFixed(2)}',
                               ),
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,

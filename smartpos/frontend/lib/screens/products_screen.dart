@@ -7,7 +7,7 @@ import '../theme/app_colors.dart';
 import '../utils/validators.dart';
 import '../utils/formatters.dart';
 import '../utils/helpers.dart';
-import '../widgets/barcode_scanner_modal.dart';
+import '../widgets/barcode_scanner_widget.dart';
 import '../config/api_config.dart';
 
 class ProductsScreen extends StatefulWidget {
@@ -312,14 +312,18 @@ class _AddEditProductDialogState extends State<_AddEditProductDialog> {
   late TextEditingController _sellingPriceController;
   late TextEditingController _stockController;
   late TextEditingController _minimumStockController;
-  String _selectedUnit = 'piece';
+  String _selectedUnit = 'pcs';
 
+  // Match unit values with inventory screen and database
   final List<Map<String, String>> _units = [
-    {'value': 'piece', 'label': 'Piece (counted items)'},
+    {'value': 'pcs', 'label': 'Piece (counted items)'},
     {'value': 'kg', 'label': 'Kilogram (weight-based)'},
-    {'value': 'gram', 'label': 'Gram (weight-based)'},
-    {'value': 'liter', 'label': 'Liter (liquid)'},
+    {'value': 'g', 'label': 'Gram (weight-based)'},
+    {'value': 'ltr', 'label': 'Liter (liquid)'},
     {'value': 'ml', 'label': 'Milliliter (liquid)'},
+    {'value': 'box', 'label': 'Box'},
+    {'value': 'pack', 'label': 'Pack'},
+    {'value': 'dozen', 'label': 'Dozen'},
   ];
 
   @override
@@ -337,7 +341,10 @@ class _AddEditProductDialogState extends State<_AddEditProductDialog> {
     _minimumStockController = TextEditingController(
       text: p?.minimumStock?.toString() ?? '5',
     );
-    _selectedUnit = p?.unit ?? 'piece';
+    // Normalize unit value to match dropdown options
+    final productUnit = (p?.unit ?? 'pcs').toLowerCase().trim();
+    const validUnits = ['pcs', 'kg', 'g', 'ltr', 'ml', 'box', 'pack', 'dozen'];
+    _selectedUnit = validUnits.contains(productUnit) ? productUnit : 'pcs';
   }
 
   @override
@@ -432,30 +439,45 @@ class _AddEditProductDialogState extends State<_AddEditProductDialog> {
           ),
           const SizedBox(height: 16),
 
-          // Barcode
-          TextFormField(
-            controller: _barcodeController,
-            decoration: InputDecoration(
-              labelText: 'Barcode (Optional)',
-              prefixIcon: const Icon(Icons.qr_code),
-              hintText: 'Enter barcode if available',
-              suffixIcon: IconButton(
-                icon: const Icon(Icons.qr_code_scanner),
-                onPressed: () async {
-                  showDialog(
-                    context: context,
-                    builder: (context) => BarcodeScannerModal(
-                      onBarcodeScanned: (barcode) {
-                        setState(() {
-                          _barcodeController.text = barcode;
-                        });
-                      },
+          // Barcode with Scan Button
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  controller: _barcodeController,
+                  decoration: const InputDecoration(
+                    labelText: 'Barcode (Optional)',
+                    prefixIcon: Icon(Icons.qr_code),
+                    hintText: 'Enter barcode if available',
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              // Scan Button (same as billing screen)
+              ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BarcodeScannerWidget(
+                        onBarcodeDetected: (barcode) {
+                          setState(() {
+                            _barcodeController.text = barcode;
+                          });
+                        },
+                      ),
                     ),
                   );
                 },
-                tooltip: 'Scan Barcode',
+                icon: const Icon(Icons.qr_code_scanner),
+                label: const Text('Scan'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                ),
               ),
-            ),
+            ],
           ),
           const SizedBox(height: 16),
 

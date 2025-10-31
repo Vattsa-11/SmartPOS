@@ -480,56 +480,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildStatusItem(
-              '📁 Local Database',
-              'Active',
+              '☁️ Cloud Sync',
+              'Synced',
               AppColors.success,
             ),
             const SizedBox(height: 12),
-            _buildStatusItem(
-              '☁️ Cloud Sync (Supabase)',
-              'Not Available',
-              Colors.orange,
-            ),
-            const SizedBox(height: 20),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.grey[800],
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.grey[700]!),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.info, size: 20, color: Colors.grey[400]),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Database Information:',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey[300],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  _buildInfoBullet(
-                    'Local SQLite:',
-                    'All your data is stored locally for fast, offline access',
-                  ),
-                  const SizedBox(height: 4),
-                  _buildInfoBullet(
-                    'Cloud Sync:',
-                    'Optional backup to Supabase (contact support to enable)',
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
             Text(
-              'Your data is always safe in the local database, even without cloud sync.',
+              'Your data is automatically backed up to the cloud and synced across devices.',
               style: TextStyle(
                 fontSize: 12,
                 color: Colors.grey[400],
@@ -577,29 +534,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildInfoBullet(String title, String description) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('• ', style: TextStyle(fontSize: 16, color: Colors.grey[400])),
-        Expanded(
-          child: RichText(
-            text: TextSpan(
-              style: TextStyle(fontSize: 13, color: Colors.grey[300]),
-              children: [
-                TextSpan(
-                  text: '$title ',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                TextSpan(text: description),
-              ],
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

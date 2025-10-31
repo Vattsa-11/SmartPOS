@@ -4,6 +4,7 @@ import '../providers/auth_provider.dart';
 import '../providers/products_provider.dart';
 import '../providers/inventory_provider.dart';
 import '../services/api_service.dart';
+import '../models/sale.dart';
 import '../utils/routes.dart';
 import '../utils/formatters.dart';
 import 'login_screen.dart';
@@ -22,6 +23,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   int _lowStockCount = 0;
   double _todaysSales = 0.0;
   int _totalCustomers = 0;
+  List<Sale> _recentSales = [];
 
   @override
   void initState() {
@@ -36,7 +38,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     if (authProvider.isAuthenticated && authProvider.user?.id != null) {
       if (_isLoading) {
-        _loadDashboardData();
+        // Use post-frame callback to avoid setState during build
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _loadDashboardData();
+        });
       }
     }
   }
@@ -83,6 +88,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                sale.saleDate.day == today.day;
       });
       _todaysSales = todaysSales.fold(0.0, (sum, sale) => sum + sale.totalAmount);
+      
+      // Get recent sales (last 5)
+      _recentSales = sales.take(5).toList();
       
       // Get total customers
       final customers = await _apiService.getCustomers();
@@ -284,7 +292,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Text(
-                                    '${(customer.totalPurchases / 500).floor()}', // Approximate purchase count
+                                    '${customer.purchaseCount}', // Use actual purchase count
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
@@ -412,8 +420,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  void _navigateToSection(String route) {
-    Navigator.pushNamed(context, route);
+  void _navigateToSection(String route) async {
+    final result = await Navigator.pushNamed(context, route);
+    // If result is true, refresh dashboard data
+    if (result == true && mounted) {
+      _loadDashboardData();
+    }
   }
 
   @override
@@ -609,24 +621,61 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        Card(
-                          elevation: 2,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Padding(
-                            padding: EdgeInsets.all(24),
-                            child: Center(
-                              child: Text(
-                                'No recent activity',
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 14,
+                        if (_recentSales.isEmpty)
+                          Card(
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Padding(
+                              padding: EdgeInsets.all(24),
+                              child: Center(
+                                child: Text(
+                                  'No recent activity',
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 14,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ),
+                          )
+                        else
+                          ..._recentSales.map((sale) => Card(
+                            elevation: 2,
+                            margin: const EdgeInsets.only(bottom: 8),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: ListTile(
+                              leading: CircleAvatar(
+                                backgroundColor: const Color(0xFF27AE60),
+                                child: const Icon(
+                                  Icons.receipt,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ),
+                              title: Text(
+                                sale.invoiceNumber ?? 'Invoice',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              subtitle: Text(
+                                '${sale.items.length} items • ${sale.paymentMethod}\n${Formatters.formatDateTime(sale.saleDate)}',
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                              trailing: Text(
+                                Formatters.formatCurrency(sale.totalAmount),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  color: Color(0xFF27AE60),
+                                ),
+                              ),
+                            ),
+                          )),
                       ],
                     ),
                   ),

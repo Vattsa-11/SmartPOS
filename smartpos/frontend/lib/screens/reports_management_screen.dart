@@ -58,14 +58,18 @@ class _ReportsManagementScreenState extends State<ReportsManagementScreen> with 
       ]);
 
       setState(() {
-        _sales = results[0] as List<Sale>;
-        _inventory = results[1] as List<Product>;
-        _customers = results[2] as List<Customer>;
+        _sales = (results[0] as List<Sale>?) ?? [];
+        _inventory = (results[1] as List<Product>?) ?? [];
+        _customers = (results[2] as List<Customer>?) ?? [];
         _isLoading = false;
       });
     } catch (e) {
+      print('❌ Error loading reports data: $e');
       setState(() {
-        _error = e.toString();
+        _error = e.toString().replaceAll('Exception: ', '');
+        _sales = [];
+        _inventory = [];
+        _customers = [];
         _isLoading = false;
       });
     }
@@ -719,11 +723,11 @@ class _ReportsManagementScreenState extends State<ReportsManagementScreen> with 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.grey[850],
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withOpacity(0.2),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),

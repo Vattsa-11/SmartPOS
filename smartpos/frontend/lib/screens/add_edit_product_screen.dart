@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/product.dart';
 import '../providers/inventory_provider.dart';
 import '../widgets/barcode_scanner_widget.dart';
+import '../theme/app_colors.dart';
 
 class AddEditProductScreen extends StatefulWidget {
   final Product? product;
@@ -29,6 +30,9 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
   bool _isLoading = false;
   String _selectedUnit = 'pcs';
 
+  // Valid unit values that match dropdown
+  static const List<String> validUnits = ['pcs', 'kg', 'g', 'ltr', 'ml', 'box', 'pack', 'dozen'];
+
   @override
   void initState() {
     super.initState();
@@ -36,7 +40,14 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
       _nameController.text = widget.product!.name;
       _priceController.text = widget.product!.sellingPrice.toString();
       _barcodeController.text = widget.product!.barcode ?? '';
-      _selectedUnit = widget.product!.unit ?? 'pcs';
+      
+      // Normalize unit value to match dropdown exactly
+      String productUnit = (widget.product!.unit ?? 'pcs').toLowerCase().trim();
+      print('🔍 Product unit from DB: "${widget.product!.unit}" -> normalized: "$productUnit"');
+      print('🔍 Valid units: $validUnits');
+      print('🔍 Contains check: ${validUnits.contains(productUnit)}');
+      _selectedUnit = validUnits.contains(productUnit) ? productUnit : 'pcs';
+      print('🔍 Selected unit after init: "$_selectedUnit"');
     }
   }
 
@@ -89,12 +100,13 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
       final unit = _selectedUnit.toLowerCase();
       final isWeightBased = unit == 'kg' || unit == 'g' || unit == 'ltr' || unit == 'ml';
       
-      final quantity = isWeightBased 
-          ? double.parse(_quantityController.text.trim()).toInt()
-          : int.parse(_quantityController.text.trim());
-      final reorderLevel = isWeightBased
-          ? double.parse(_reorderLevelController.text.trim()).toInt()
-          : int.parse(_reorderLevelController.text.trim());
+      // Parse quantities as double first
+      final quantityDouble = double.parse(_quantityController.text.trim());
+      final reorderLevelDouble = double.parse(_reorderLevelController.text.trim());
+      
+      // Convert to int for provider (backend handles decimal storage)
+      final quantity = quantityDouble.toInt();
+      final reorderLevel = reorderLevelDouble.toInt();
 
       final inventoryProvider = Provider.of<InventoryProvider>(context, listen: false);
 
@@ -213,6 +225,7 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
                       },
                     ),
                     const SizedBox(height: 16),
+                    // Barcode field with scan button
                     Row(
                       children: [
                         Expanded(
@@ -233,15 +246,15 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
                           ),
                         ),
                         const SizedBox(width: 8),
+                        // Scan Button (same color as billing and add product)
                         ElevatedButton.icon(
                           onPressed: _openBarcodeScanner,
                           icon: const Icon(Icons.qr_code_scanner),
                           label: const Text('Scan'),
                           style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 16,
-                            ),
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                           ),
                         ),
                       ],

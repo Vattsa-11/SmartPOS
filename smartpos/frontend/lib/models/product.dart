@@ -48,12 +48,8 @@ class Product {
       sku: json['sku'],
       sellingPrice: _parseDouble(json['selling_price'] ?? json['price']),
       costPrice: _parseDouble(json['cost_price']),
-      stock: json['stock'] is String
-          ? int.tryParse(json['stock'])
-          : (json['stock'] ?? json['current_stock']),
-      minimumStock: json['minimum_stock'] is String
-          ? int.tryParse(json['minimum_stock'])
-          : (json['minimum_stock'] ?? json['reorder_level']),
+      stock: _parseInt(json['stock'] ?? json['current_stock']),
+      minimumStock: _parseInt(json['minimum_stock'] ?? json['reorder_level']),
       unit: json['unit'] ?? 'pcs',
       discountPercentage: _parseDouble(json['discount_percentage']),
       taxPercentage: _parseDouble(json['tax_percentage']),
@@ -64,6 +60,14 @@ class Product {
       createdAt: json['created_at'],
       updatedAt: json['updated_at'],
     );
+  }
+
+  static int? _parseInt(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is double) return value.toInt();
+    if (value is String) return int.tryParse(value);
+    return null;
   }
 
   static double _parseDouble(dynamic value) {

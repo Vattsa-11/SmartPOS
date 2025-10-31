@@ -181,11 +181,14 @@ class ApiService {
     final uri = Uri.parse('${ApiConfig.baseUrl}/api/upload-qr');
     final request = http.MultipartRequest('POST', uri);
     
+    // Add authorization header
+    final token = await _authService.getToken();
+    if (token != null) {
+      request.headers['Authorization'] = 'Bearer $token';
+    }
+    
     // Add file
     request.files.add(await http.MultipartFile.fromPath('file', filePath));
-    
-    // Add user_id as form field
-    request.fields['user_id'] = userId.toString();
     
     // Add auth headers including user ID
     final authHeaders = await _authService.getAuthHeader();

@@ -9,6 +9,7 @@ class Customer {
   final double creditLimit;
   final double currentBalance;
   final double totalPurchases;
+  final int purchaseCount;  // Add purchase count field
   final DateTime? lastPurchaseAt;
   final bool isActive;
   final DateTime createdAt;
@@ -25,6 +26,7 @@ class Customer {
     required this.creditLimit,
     required this.currentBalance,
     required this.totalPurchases,
+    this.purchaseCount = 0,  // Default to 0
     this.lastPurchaseAt,
     required this.isActive,
     required this.createdAt,
@@ -43,6 +45,7 @@ class Customer {
       creditLimit: _toDouble(json['credit_limit']),
       currentBalance: _toDouble(json['current_balance']),
       totalPurchases: _toDouble(json['total_purchases']),
+      purchaseCount: json['purchase_count'] as int? ?? 0,  // Parse purchase count
       lastPurchaseAt: json['last_purchase_at'] != null
           ? DateTime.parse(json['last_purchase_at'] as String)
           : null,
@@ -64,6 +67,7 @@ class Customer {
       'credit_limit': creditLimit,
       'current_balance': currentBalance,
       'total_purchases': totalPurchases,
+      'purchase_count': purchaseCount,  // Include purchase count
       'last_purchase_at': lastPurchaseAt?.toIso8601String(),
       'is_active': isActive,
       'created_at': createdAt.toIso8601String(),

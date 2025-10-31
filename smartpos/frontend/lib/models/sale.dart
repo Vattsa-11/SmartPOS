@@ -3,6 +3,7 @@ class Sale {
   final String invoiceNumber;
   final DateTime saleDate;
   final double totalAmount;
+  final double subtotal;
   final double taxAmount;
   final double discountAmount;
   final String paymentMethod;
@@ -17,6 +18,7 @@ class Sale {
     required this.invoiceNumber,
     required this.saleDate,
     required this.totalAmount,
+    double? subtotal,
     this.taxAmount = 0,
     this.discountAmount = 0,
     required this.paymentMethod,
@@ -25,7 +27,7 @@ class Sale {
     required this.items,
     this.userId,
     this.createdAt,
-  });
+  }) : subtotal = subtotal ?? totalAmount;
 
   factory Sale.fromJson(Map<String, dynamic> json) {
     // Safe integer conversion for id
@@ -55,6 +57,7 @@ class Sale {
           ? DateTime.parse(json['sale_date'])
           : DateTime.now(),
       totalAmount: (json['total_amount'] ?? 0).toDouble(),
+      subtotal: (json['subtotal'] ?? json['total_amount'] ?? 0).toDouble(),
       taxAmount: (json['tax_amount'] ?? 0).toDouble(),
       discountAmount: (json['discount_amount'] ?? 0).toDouble(),
       paymentMethod: json['payment_method']?.toString() ?? 'cash',
@@ -76,6 +79,7 @@ class Sale {
       'invoice_number': invoiceNumber,
       'sale_date': saleDate.toIso8601String(),
       'total_amount': totalAmount,
+      'subtotal': subtotal,
       'tax_amount': taxAmount,
       'discount_amount': discountAmount,
       'payment_method': paymentMethod,
@@ -95,6 +99,10 @@ class SaleItem {
   final double quantity;
   final double price;
   final double total;
+  
+  // Aliases for compatibility
+  double get unitPrice => price;
+  double get totalPrice => total;
 
   SaleItem({
     this.id,
