@@ -554,10 +554,155 @@ flutter build web
 
 ## 📞 Support
 
+<<<<<<< HEAD
 **Developer**: Sri  
 **Email**: srisu0306@gmail.com  
 **GitHub**: Vattsa-11/SmartPOS  
 **Repository**: APP-project
+=======
+## Weight-Based vs Count-Based Products
+
+### Weight-Based Units
+- **Kilogram (kg)**, **Gram (g)**, **Litre (ltr)**, **Millilitre (ml)**
+- Accept decimal quantities (e.g., 2.5, 0.75, 10.25)
+- Cart shows: "2.50 kg" or "1.75 ltr"
+- Billing prompts for weight entry
+- No +/- buttons, only Edit button
+- Backend stores as float, deducts decimal amounts
+
+### Count-Based Units
+- **Pieces (pcs)**, **Box**, **Pack**, **Dozen**
+- Accept whole numbers only
+- Cart shows: "5 pcs" or "3 box"
+- Billing auto-adds 1 piece
+- Has +/- increment buttons
+- Backend handles as integers
+
+## Mobile vs Web Differences
+
+| Feature | Web Version | Mobile APK |
+|---------|-------------|------------|
+| **Camera** | HTML5 getUserMedia | Native camera API |
+| **Performance** | Good | Excellent |
+| **Permissions** | Browser prompt | OS-level permissions |
+| **Scanner** | WebBarcodeScanner | mobile_scanner package |
+| **Offline** | Requires connection | Can work offline (future) |
+| **Installation** | Browser-based | Installed app |
+| **Updates** | Automatic | Manual APK update |
+
+**Important**: The mobile APK will have BETTER camera performance than the web version because it uses native camera access through the mobile_scanner package.
+
+## Project Structure
+
+```
+APP project/
+├── README.md                          # This file
+├── SmartPOS_Launcher.bat              # Windows batch launcher
+├── SmartPOS_Launcher.ps1              # PowerShell launcher (recommended)
+└── smartpos/
+    ├── backend/
+    │   ├── simple_fastapi.py          # Main API server
+    │   ├── requirements.txt           # Python dependencies
+    │   ├── smartpos.db                # SQLite database
+    │   ├── init_db.py                 # Database initialization
+    │   ├── add_mock_data.py           # Sample data generator
+    │   └── uploads/                   # QR code uploads
+    └── frontend/
+        ├── lib/
+        │   ├── main.dart              # App entry point
+        │   ├── config/
+        │   │   └── api_config.dart    # API base URL
+        │   ├── models/
+        │   │   ├── product.dart       # Product model
+        │   │   ├── cart_item.dart     # Cart model (double quantity)
+        │   │   ├── inventory.dart
+        │   │   └── sale.dart
+        │   ├── providers/
+        │   │   ├── auth_provider.dart
+        │   │   ├── cart_provider.dart # Cart with decimal support
+        │   │   └── inventory_provider.dart
+        │   ├── screens/
+        │   │   ├── login_screen.dart
+        │   │   ├── dashboard_screen.dart
+        │   │   ├── billing_screen.dart           # Billing with weight dialogs
+        │   │   ├── billing_management_screen.dart # Enhanced cart display
+        │   │   ├── inventory_management_screen.dart # Decimal stock input
+        │   │   ├── add_edit_product_screen.dart  # Unit dropdown + decimals
+        │   │   └── settings_screen.dart
+        │   ├── services/
+        │   │   └── api_service.dart   # HTTP client
+        │   └── widgets/
+        │       ├── barcode_scanner_widget.dart  # Hybrid wrapper
+        │       └── web_barcode_scanner.dart     # Web camera
+        ├── pubspec.yaml               # Flutter dependencies
+        └── build/
+            └── web/                   # Built web app
+```
+
+## Security Considerations
+
+### Current Implementation
+- JWT-based authentication
+- Password hashing (to be implemented)
+- User-specific data isolation
+- Header-based user identification
+
+### For Production
+- [ ] Implement proper password hashing (bcrypt/argon2)
+- [ ] Add HTTPS/SSL certificates
+- [ ] Configure CORS for specific domains only
+- [ ] Implement rate limiting
+- [ ] Add input validation and sanitization
+- [ ] Set up database backups
+- [ ] Implement session management
+- [ ] Add API versioning
+
+## Performance Optimization
+
+- SQLite for fast local database access
+- Provider for efficient state management
+- Image caching for QR codes with timestamp busting
+- Lazy loading for product lists
+- Debounced search inputs
+- Optimized Flutter build (--release mode)
+
+## Future Enhancements
+
+### Planned Features
+- Offline mode with local storage sync
+- Thermal printer integration
+- Receipt PDF generation
+- Advanced analytics dashboard
+- Customer loyalty program
+- Multi-store support
+- Cloud backup and sync
+- Payment gateway integration
+- Automated reports (daily/weekly/monthly)
+
+### Technical Improvements
+- PostgreSQL migration for multi-tenant support
+- Redis caching layer
+- WebSocket for real-time updates
+- Docker containerization
+- CI/CD pipeline
+- Automated testing suite
+- API rate limiting
+- Enhanced security measures
+
+## Contributing
+
+This project is currently in active development. For feature requests or bug reports, please contact the development team.
+
+## License
+
+Private project - All rights reserved.
+
+## Support
+
+For questions, issues, or feature requests:
+- Email: srisu0306@gmail.com
+- GitHub: Vattsa-11/SmartPOS
+>>>>>>> 251d276a3c54b03fe0f19f227333c6888d4980cf
 
 ---
 
