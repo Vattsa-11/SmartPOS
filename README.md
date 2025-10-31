@@ -665,7 +665,7 @@ Private project - All rights reserved.
 
 For questions, issues, or feature requests:
 - Email: srisu0306@gmail.com
-- GitHub: Vattsa-11/APP-project
+- GitHub: Vattsa-11/SmartPOS
 
 ---
 
