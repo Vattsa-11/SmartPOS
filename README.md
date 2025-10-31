@@ -664,7 +664,7 @@ Private project - All rights reserved.
 ## Support
 
 For questions, issues, or feature requests:
-- Email: [Your Email]
+- Email: srisu0306@gmail.com
 - GitHub: Vattsa-11/APP-project
 
 ---
