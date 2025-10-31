@@ -1,0 +1,141 @@
+import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide User;
+import '../models/user.dart';
+import '../services/supabase_config.dart';
+
+class AuthProvider extends ChangeNotifier {
+  User? _currentUser;
+  bool _isLoading = false;
+  String? _error;
+  final _client = SupabaseConfig.client;
+
+  User? get currentUser => _currentUser;
+  bool get isLoading => _isLoading;
+  String? get error => _error;
+
+  Future<bool> register(User user, String password) async {
+    try {
+      _isLoading = true;
+      _error = null;
+      notifyListeners();
+
+      // Check if phone number exists
+      final phoneExists = await _client
+          .from('profiles')
+          .select()
+          .eq('phone', user.phone)
+          .maybeSingle();
+
+      if (phoneExists != null) {
+        throw Exception('Phone number already registered');
+      }
+
+      // Create auth user
+      final email = '${user.username.toLowerCase().trim()}@smartpos.app';
+      final response = await _client.auth.signUp(
+        email: email,
+        password: password,
+      );
+
+      if (response.user == null) {
+        throw Exception('Failed to create account');
+      }
+
+      // Create profile
+      await _client.from('profiles').insert({
+        'id': response.user!.id,
+        'username': user.username,
+        'phone': user.phone,
+        'shop_name': user.shopName,
+        'language_preference': user.languagePreference,
+        'created_at': DateTime.now().toIso8601String(),
+        'updated_at': DateTime.now().toIso8601String(),
+      });
+
+      // Set current user
+      _currentUser = user.copyWith(id: response.user!.id);
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> login(String username, String password) async {
+    try {
+      _isLoading = true;
+      _error = null;
+      notifyListeners();
+
+      final email = '${username.toLowerCase().trim()}@smartpos.app';
+      final response = await _client.auth.signInWithPassword(
+        email: email,
+        password: password,
+      );
+
+      if (response.user == null) {
+        throw Exception('Invalid credentials');
+      }
+
+      final userData = await _client
+          .from('profiles')
+          .select()
+          .eq('id', response.user!.id)
+          .single();
+
+      _currentUser = User(
+        id: userData['id'],
+        username: userData['username'],
+        phone: userData['phone'],
+        shopName: userData['shop_name'],
+        languagePreference: userData['language_preference'],
+        createdAt: userData['created_at'],
+      );
+
+      return true;
+    } catch (e) {
+      _error = 'Invalid username or password';
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> logout() async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+      await _client.auth.signOut();
+      _currentUser = null;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> updateLanguagePreference(String languageCode) async {
+    if (_currentUser == null) return;
+
+    try {
+      await _client
+          .from('profiles')
+          .update({'language_preference': languageCode})
+          .eq('id', _currentUser!.id);
+
+      _currentUser = _currentUser!.copyWith(languagePreference: languageCode);
+      notifyListeners();
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+    }
+  }
+
+  void clearError() {
+    _error = null;
+    notifyListeners();
+  }
+}
